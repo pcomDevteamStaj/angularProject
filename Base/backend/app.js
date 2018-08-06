@@ -1,65 +1,95 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const monoose = require("mongoose");
-const Post = require("./models/user");
+const express = require ('express');
+const oracledb = require ('oracledb');
+const config = require ('./config/config.js');
 
-const app = express();
+var app = express ();
 
-monoose
-  .connect(
-    "mongodb+srv://eyup:46IFMNe6oE9ecjuQ@cluster0-ieixg.mongodb.net/longin-test?retryWrites=true",
-    { useNewUrlParser: true }
-  )
-  .then(() => {
-    console.log("Connected to database");
-  })
-  .catch(() => {
-    console.log("Connection failed!");
-  });
+app.post ("/", function (req, res) {
+    "use strict";
 
-  app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+    oracledb.getConnection (
+		{
+            user: config.user,
+            password: config.password,
+            connectString: config.connectString
+        }, function (err, connection) {
+            if (err) {
+                console.error ("Error #01: " + err.message);
+                return;
+            }
+			
+			console.log (": " + req.param);
+			console.log (": " + req.params);
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PATCH, DELETE, OPTIONS"
-  );
-  next();
+            connection.execute (
+                "INSERT INTO GNL_USER (USER_ID, USER_NAME, USER_PASS, USER_MAIL, USER_RANK) VALUES (GNL_USER_SEQ.nextVal, :name, :pass, :mail, :rank)",
+				{name: req.param ('USER'), pass: req.param ('PASS'), mail: "test@mail.com", rank: 0},
+                {autoCommit: true},
+                function (err, result) {
+                    if (err) {
+                        console.log ("Error #02: " + err.message);
+                        return;
+                    }
+
+                    connection.release (function (err) {
+                        if (err) {
+                            console.log ("Error #03: " + err.message);
+                            return;
+                        }
+
+                        console.log ("Connection released!");
+                    });
+                }
+            );
+        }
+    );
 });
 
-app.post("/api/users", (req, res, next) => {
-  const post = new Post({
-    UserName: req.body.UserName,
-    password: req.body.password,
-    mail: req.body.mail,
-    tel: req.body.tel,
-    title: req.body.title,
-    gender: req.body.gender
+app.get ('/', function (req, res) {
+	"use strict";
+	
+	oracledb.getConnection (
+		{
+            user: config.user,
+            password: config.password,
+            connectString: config.connectString
+        }, function (err, connection) {
+            if (err) {
+                console.error ("Error #04: " + err.message);
+                return;
+            }
 
-  });
-  post.save().then(createdPost => {
-  res.status(201).json({
-    message: "Post added successfully",
-    postId: createdPost._id
-  });
+            connection.execute (
+                "SELECT * FROM GNL_USER WHERE USER_NAME = :name",
+				{name: req.param ('USER')},
+                function (err, result) {
+                    if (err) {
+                        console.log ("Error #05: " + err.message);
+                        return;
+                    }
+
+                    connection.release (function (err) {
+                        if (err) {
+                            console.log ("Error #06: " + err.message);
+                            return;
+                        }
+
+                        var user = result.rows [0];
+						res.write ("Password: " + user [3]);
+						res.end ();
+						console.log ("Password: " + user [3]);
+                    });
+                }
+            );
+        }
+    );
 });
+
+var server = app.listen (config.port, function () {
+    "use strict";
+
+    var host = server.address ().address;
+    var port = server.address ().port;
+
+    console.log ("Server is listening at %s:%s", host, port);
 });
-
-
-app.get("/api/users", (req, res, next) => {
-  Post.find()
-  .then(documents => {
-    res.status(200).json({
-      message: "Posts fetched successfully!",
-      posts: documents
-    });
-  });
-});
-
-module.exports = app;
