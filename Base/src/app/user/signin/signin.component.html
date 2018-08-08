@@ -2,7 +2,7 @@
   <mat-card>
     <div class="example-container">
       <!-- Form -->
-      <form (submit)="loginControl (loginForm)" #loginForm="ngForm">
+      <form (submit)="loginControl (loginForm)" #loginForm="ngForm" method="POST">
         <mat-form-field>
           <input matInput name="username" type="text" ngModel placeholder="Username" #usernameInput="ngModel">
           <mat-icon matSuffix> perm_identity </mat-icon>

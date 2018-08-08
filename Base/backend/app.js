@@ -18,8 +18,8 @@ app.post ("/", function (req, res) {
                 return;
             }
 			
-			console.log (": " + req.param);
-			console.log (": " + req.params);
+			console.log ("Username: " + req.param ("USER"));
+			console.log ("Password: " + req.param ("PASS"));
 
             connection.execute (
                 "INSERT INTO GNL_USER (USER_ID, USER_NAME, USER_PASS, USER_MAIL, USER_RANK) VALUES (GNL_USER_SEQ.nextVal, :name, :pass, :mail, :rank)",
@@ -48,6 +48,9 @@ app.post ("/", function (req, res) {
 app.get ('/', function (req, res) {
 	"use strict";
 	
+	console.log ("Username: " + req.param ("USER"));
+	console.log ("Password: " + req.param ("PASS"));
+	
 	oracledb.getConnection (
 		{
             user: config.user,
@@ -75,9 +78,11 @@ app.get ('/', function (req, res) {
                         }
 
                         var user = result.rows [0];
-						res.write ("Password: " + user [3]);
+						res.setHeader('Access-Control-Allow-Origin', '*');
+						var data = JSON.stringify ({isAllowed: req.param ('PASS') === user [3]});
+						res.write (data);
 						res.end ();
-						console.log ("Password: " + user [3]);
+						console.log ("Password is " + (req.param ('PASS') == user [3]));
                     });
                 }
             );

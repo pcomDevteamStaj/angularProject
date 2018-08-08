@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 
 @Component({
@@ -16,8 +16,10 @@ export class SigninComponent implements OnInit {
 
   loginControl(form: NgForm) {
 	  console.log (form.value.username + ":" + form.value.password);
-	  var data = JSON.stringify ({USER: form.value.username, PASS: form.value.password});
-	  this.http.post ("http://localhost:3000/", data).subscribe (r => {console.log ("r: " + r));
-	  //this.http.get ("http://localhost:3000/" + form.value.username);
+	  var params = new HttpParams ()
+			.set ('USER', form.value.username)
+			.set ('PASS', form.value.password);
+	  //this.http.post ("http://localhost:3000/", null, {params}).subscribe (r => {console.log ("r: " + r));
+	  this.http.get ("http://localhost:3000/", {params}).subscribe (r => {console.log ("r: " + r.isAllowed));
   }
 }
