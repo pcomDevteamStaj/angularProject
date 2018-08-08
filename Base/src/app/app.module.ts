@@ -49,6 +49,20 @@ import { ForgotPassComponent } from './user/forgot-pass/forgot-pass.component';
 import { UserPanelComponent } from './user/user-panel/user-panel.component';
 import '../polyfills';
 import { HeaderComponent } from './user/header/header.component';
+import { RouterModule, Routes } from '@angular/router';
+import { AuthService } from './user/auth/auth.service';
+import { AuthComponent } from './user/auth/auth.component';
+
+const appRoutes: Routes = [
+  { path: 'login', component: SigninComponent },
+  { path: 'sign-up', component: SignupComponent },
+  { path: 'forgot-pass', component: ForgotPassComponent },
+  { path: 'user-panel', component: UserPanelComponent, canActivate: [AuthService]},
+  { path: 'auth', component: AuthComponent },
+  { path: '', pathMatch: 'full', component: SigninComponent},
+  { path: '**', component: SigninComponent}
+];
+
 
 @NgModule({
   declarations: [
@@ -57,9 +71,11 @@ import { HeaderComponent } from './user/header/header.component';
     SignupComponent,
     ForgotPassComponent,
     UserPanelComponent,
-    HeaderComponent
+    HeaderComponent,
+    AuthComponent
   ],
   imports: [
+    RouterModule.forRoot (appRoutes),
     ReactiveFormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
@@ -100,7 +116,7 @@ import { HeaderComponent } from './user/header/header.component';
     FormsModule,
     BrowserModule
   ],
-  providers: [],
+  providers: [AuthService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

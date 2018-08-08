@@ -1,3 +1,16 @@
-<p>
-  user-panel works!
-</p>
+<body>
+    <div class="test-table">
+        <p>USER_ID: {{user_id}}</p>
+        <p>USER_NAME: {{user_name}}</p>
+        <p>USER_MAIL: {{user_mail}}</p>
+        <p>USER_TITLE: {{user_title}}</p>
+        <p>USER_PHONE: {{user_phone}}</p>
+        <p>USER_GENDER: {{user_gender}}</p>
+        <p>USER_RANK: {{user_rank}}</p>
+    </div>
+    <div class="menu">
+        <p *ngIf= "user_rank > 0">Rank > 0</p> 
+        <p *ngIf= "user_rank > 1">Rank > 1</p> 
+        <p *ngIf= "user_rank > 2">Rank > 2</p> 
+    </div>
+</body>

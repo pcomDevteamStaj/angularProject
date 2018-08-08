@@ -1,27 +1,11 @@
-const mongoose = require("mongoose");
-
-const postSchema = mongoose.Schema({
-  UserName: {
-    type: String,
-    required: function() {
-      return this.userId != null;
-    }
-  },
-  password: {
-    type: String,
-    required: function() {
-      return this.userId != null;
-    }
-  },
-  mail: {
-    type: String,
-    required: function() {
-      return this.userId != null;
-    }
-  },
-  tel: { type: String, required: false },
-  title: { type: String, required: false },
-  gender: { type: String, required: false }
-});
-
-module.exports = mongoose.model("Post", postSchema);
+module.exports = class UserStruct {
+  constructor () {
+    this._id = -1;
+    this._username = "";
+    this._email = "";
+    this._title = "";
+    this._phone = "";
+    this._gender = "";
+    this._rank = 0;
+  }
+}

@@ -1,0 +1,19 @@
+body {
+    display: flex;
+    justify-content: space-between;
+}
+
+test-table {
+    display: flex;
+    flex-direction: column;
+}
+
+menu {
+    display: flex;
+    flex-direction: column;
+}
+
+p {
+    padding-left: 10px;
+    padding-right: 10px;
+}

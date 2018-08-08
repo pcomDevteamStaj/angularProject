@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {User} from '../user.model';
 import {FormControl, Validators} from '@angular/forms';
 import { UserService } from '../user.service';
 import { NgForm } from '@angular/forms';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-signup',
@@ -11,58 +11,40 @@ import { NgForm } from '@angular/forms';
 })
 export class SignupComponent implements OnInit {
 
-  constructor(public userService: UserService) {}
+  constructor(public authService: AuthService, public userService: UserService) {}
 
-  emailFormControl = new FormControl('', [Validators.required, Validators.email, ]);
-  pass;
-  repass;
+  username;
+  password;
+  repassword;
   showPassErr;
+  emailFormControl = new FormControl ('', [Validators.required, Validators.email, ]);
   email;
-  titles = ['Avukat', 'Doktor', 'Mühendis', 'Öğrenci'];
-  submitted = false;
-  genders = ['Kadın', 'Erkek'];
+  phone;
+  title;
+  titles = ["A", "B", "C"];
   gender;
+  genders = ["Male", "Female"];
+  submitted = false;
   available;
 
-  newUser(form: NgForm) {
-    console.log(form.value.userName);
-    console.log(form.value.pass);
-    console.log(this.emailFormControl.value);
-    console.log(form.value.tel);
-    console.log(form.value.title);
-    console.log(form.value.gender);
-    if (form.invalid) {
+  comparePass (event: any) {
+
+  }
+
+  onSubmit() { this.submitted = true; }
+
+  signUpControl(form: NgForm) {
+    console.log ("signUpControl() method!");
+    
+    if(form.invalid) {
       return;
     }
-    this.userService.addUser(form.value.userName,
-      form.value.pass, this.emailFormControl.value, form.value.tel,
-      form.value.title, form.value.gender);
-     form.resetForm();
-     // this.emailFormControl.clearValidators();
-  }
 
-  comparePass(event: any) {
-    if (this.pass === this.repass) {
-      this.showPassErr = true;
-      console.log(this.showPassErr);
-    } else {
-      this.showPassErr = false;
-      console.log(this.showPassErr);
-    }
+    this.authService.signUp (form.value.username, form.value.pass, this.emailFormControl.value, form.value.title, form.value.phone, form.value.gender);
   }
 
 
-
-
-
-onSubmit() { this.submitted = true; }
-
-loginControl() {
-  this.submitted = true;
-}
-
-
-ngOnInit() {
-}
+  ngOnInit() {
+  }
 
 }

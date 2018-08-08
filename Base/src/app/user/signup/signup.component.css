@@ -1,7 +1,7 @@
-
 .example-container {
   display: flex;
   flex-direction: column;
+  margin: 15px;
 }
 
 .example-container > * {
@@ -21,7 +21,7 @@
 
 .example-radio-group {
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
 }
 
 .example-radio-button {
@@ -43,3 +43,29 @@
   margin-right: 8px;
 }
 
+button {
+  margin-top: 10px;
+  height: 60px;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  /*
+  background-color: antiquewhite;
+  */
+  width: 100%;
+  height: 100%;
+}
+
+form {
+  display: flex;
+  align-self: center;
+  justify-content: center;
+  align-content: center;
+  /*
+  background-color: rgba(0, 245, 245, 0.2);
+  */
+  width: 45%;
+}

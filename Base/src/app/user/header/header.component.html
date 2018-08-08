@@ -1,10 +1,7 @@
 <mat-toolbar color="primary">
-  <span></span>
+  <a href='/sign-up' ng-show="false">Sign Up</a>
   <span class="example-fill-remaining-space"></span>
-    <span>Sign Up</span>
-
-    <!-- This fills the remaining space of the current row -->
-    <span class="example-fill-remaining-space"></span>
-
-    <span>Sign In</span>
-  </mat-toolbar>
+  <button mat-flat-button (click) = "authService.logout ()">Logout</button>
+  <mat-icon class="example-icon">verified_user</mat-icon>
+  <a href='/login'>Login</a>  
+</mat-toolbar>
