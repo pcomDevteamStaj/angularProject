@@ -8,7 +8,9 @@ import { Component } from '@angular/core';
 
 export class AppComponent {
   title = 'app';
-  hasSession = false;
+  private isAllowed: boolean;
 
-  constructor () {}
+  constructor () {
+    this.isAllowed = localStorage.getItem ("isAllowed") === "true" || false;
+  }
 }

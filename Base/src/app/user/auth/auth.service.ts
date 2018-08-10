@@ -1,12 +1,9 @@
 import { Injectable } from '@angular/core';
-import { AuthData } from './auth.model';
 import { CanActivate, Router } from '../../../../node_modules/@angular/router';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { hash } from '../../../../node_modules/@types/bcrypt';
 
 @Injectable ({ providedIn: 'root' })
 export class AuthService implements CanActivate {
-
     private isAllowed;
     constructor (private router:Router, private http:HttpClient) {
         this.isAllowed = false;
@@ -47,6 +44,7 @@ export class AuthService implements CanActivate {
             if (res.isAllowed) {
                 this.isAllowed = true;
                 localStorage.setItem ("isAllowed", "true");
+                localStorage.setItem ("USERNAME", username);
                 this.router.navigate(['/user-panel']);
             }
         });
@@ -75,6 +73,7 @@ export class AuthService implements CanActivate {
     logout () {
         console.log ("AuthService logout() method");
         localStorage.setItem ("isAllowed", "false");
+        localStorage.clear ();
         this.router.navigate(['/login']);
     }
 

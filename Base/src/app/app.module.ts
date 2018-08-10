@@ -1,7 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
-
 import { HttpClientModule } from '@angular/common/http';
 
 import {
@@ -52,6 +51,7 @@ import { HeaderComponent } from './user/header/header.component';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthService } from './user/auth/auth.service';
 import { AuthComponent } from './user/auth/auth.component';
+import { DbSettingsComponent } from './dbsettings/dbsettings.component';
 
 const appRoutes: Routes = [
   { path: 'login', component: SigninComponent },
@@ -59,6 +59,7 @@ const appRoutes: Routes = [
   { path: 'forgot-pass', component: ForgotPassComponent },
   { path: 'user-panel', component: UserPanelComponent, canActivate: [AuthService]},
   { path: 'auth', component: AuthComponent },
+  { path: 'dbsettings', component: DbSettingsComponent },
   { path: '', pathMatch: 'full', component: SigninComponent},
   { path: '**', component: SigninComponent}
 ];
@@ -72,7 +73,8 @@ const appRoutes: Routes = [
     ForgotPassComponent,
     UserPanelComponent,
     HeaderComponent,
-    AuthComponent
+    AuthComponent,
+    DbSettingsComponent
   ],
   imports: [
     RouterModule.forRoot (appRoutes),
@@ -119,4 +121,4 @@ const appRoutes: Routes = [
   providers: [AuthService],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,4 +1,24 @@
 <body>
+    <table>
+        <tr>
+            <th *ngFor="let clmn of columns">{{clmn}}</th>
+        </tr>
+
+        <tr *ngFor="let obj of data">
+            <td *ngFor="let val of obj">{{val}}</td>
+        </tr>
+    </table>
+    <div>
+        <mat-form-field appearance="outline" class="tables">
+            <mat-label>Select Table</mat-label>
+            <mat-select placeholder="" name="tables" ngModel [formControl]="dataFormControl">
+                <mat-option *ngFor="let tbl_name of tables" [value]="tbl_name">{{tbl_name}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <button mat-flat-button (click)="getData (10)">Refresh</button>
+    </div>
+    <span></span>
+    <span></span>
     <div class="test-table">
         <p>USER_ID: {{user_id}}</p>
         <p>USER_NAME: {{user_name}}</p>
@@ -9,8 +29,8 @@
         <p>USER_RANK: {{user_rank}}</p>
     </div>
     <div class="menu">
-        <p *ngIf= "user_rank > 0">Rank > 0</p> 
-        <p *ngIf= "user_rank > 1">Rank > 1</p> 
-        <p *ngIf= "user_rank > 2">Rank > 2</p> 
+        <button mat-flat-button *ngIf="user_rank > 1">Rank > 1</button>
+        <button mat-flat-button *ngIf="user_rank > 2">Rank > 2</button>
+        <button mat-flat-button *ngIf="user_rank > 3">Rank > 3</button>
     </div>
 </body>

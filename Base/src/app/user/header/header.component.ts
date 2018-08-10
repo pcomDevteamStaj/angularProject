@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { AuthService } from './../auth/auth.service';
 
 @Component({
@@ -8,13 +8,9 @@ import { AuthService } from './../auth/auth.service';
 })
 export class HeaderComponent {
 
-  isAllowed: boolean;
+  @Input() public isAllowed:boolean;
 
   constructor(private authService:AuthService) {
-    this.update ();
-  }
-  
-  update () {
-    this.isAllowed = localStorage.getItem ("isAllowed") === "true";
+    
   }
 }

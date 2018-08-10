@@ -8,3 +8,9 @@ a {
   color: white;
   text-decoration: none;
 }
+
+div {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
