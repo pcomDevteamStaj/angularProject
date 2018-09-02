@@ -1,13 +1,21 @@
 const express = require ('express');
 const oracledb = require ('oracledb');
 const bodyParser = require ('body-parser');
+const fs = require ('fs');
 const config = require ('./config/config.js');
 
 var app = express ();
 app.use (bodyParser.urlencoded ({ extended: true }));
 app.use (bodyParser.json ());
 
+/**
+ * Global Variables
+ */
+var TABLE_NAME = "default";
 
+/**
+ * Register New User
+ */
 app.post ("/", function (req, res) {
     "use strict";
     /*
@@ -56,6 +64,9 @@ app.post ("/", function (req, res) {
     );
 });
 
+/**
+ * Login via Username and Password
+ */
 app.get ('/', function (req, res) {
     "use strict";
     
@@ -109,24 +120,230 @@ app.get ('/', function (req, res) {
     */
 });
 
+/**
+ * Get Data from User Table
+ */
 app.get ('/user', function (req, res) {
     "use strict";
     
-    console.log ("Username: " + req.param ('USER'));
-    
-    var data = JSON.stringify ({
-        user_id: 10,
-        user_name: "test",
-        user_mail: "test@mail.com",
-        user_title: "Job",
-        user_phone: "532 000 00 00",
-        user_rank: 2
-    });
+    // Display User List
+    if (!req.param ('USER')) {
+        console.log ("[GET from '/user'] User List");
+        
+        var result = {
+            rows: [],
+        }
+
+        result.rows = [];
+        for (var i = 0; i < 10; i++) {
+            result.rows [i] = [i, "user #" + i];
+        }
+
+        res.setHeader ('Access-Control-Allow-Origin', '*');
+        res.write (JSON.stringify (result));
+        res.end ();
+        return;
+    }
+
+    // Display Specific User
+    console.log ("[GET from '/user'] Username: " + req.param ('USER'));
+
+    var result = {
+        rows: [],
+    }
+
+    result.rows = [];
+    result.rows [0] = [10, req.param ('USER'), "SURNAME", "Bilkent University Main Campus"];
+
+    if (TABLE_NAME === "GNL_USER") {
+        result.rows [0] = [10, req.param ('USER'), "test@mail.com", "Job", "532 000 00 00", "Male", 4];
+    }
+
     res.setHeader ('Access-Control-Allow-Origin', '*');
-    res.write (data);
+    res.write (JSON.stringify (result));
     res.end ();
 });
 
+/**
+ * Change Database & Config File
+ */
+app.get ('/settings', function (req, res) {
+    "use strict";
+
+    console.log ("Username: " + req.param ('USER'));
+    console.log ("Password: " + req.param ('PASS'));
+    console.log ("connectString: " + req.param ('CONN_STR'));
+
+    // Check whether Client sended the parameters
+    if (req.param ('USER') == null || req.param ('PASS') == null || req.param ('CONN_STR') == null) {
+        console.error ("GET ['/settings'] has not enough parameters!");
+        // Send Error Message to Client
+        res.write (JSON.stringify ({}));
+        res.end ();
+        return;
+    }
+
+    res.setHeader ('Access-Control-Allow-Origin', '*');
+    
+    // Try Connection
+    oracledb.getConnection ({
+        user: req.param ('USER'),
+        password: req.param ('PASS'),
+        connectString: req.param ('CONN_STR')
+    }, function (err, connection) {
+        if (err) {
+            console.error ("Error #12: " + err.message);
+            // Send Error Message to Client
+            res.write (err.message);
+            res.end ();
+            //return;
+        }
+
+        // Write Config File
+        fs.writeFile ('./config/config.json', JSON.stringify ({'port':process.env.HTTP_PORT || 3000, 'username': req.param ('USER'), 'password':req.param ('PASS'), 'connectString': req.param ('CONN_STR')}), (err) => {
+            if (err) {
+                console.log ("Error #14: " + err.message);
+            }
+
+            console.log ("Database Config File has been saved!");
+        });
+
+        // Read Config File
+        fs.readFile ('./config/config.json', (err, data) => {
+            JSON.parse (data, (key, value) => {
+                console.log (key + ":" + value);
+            });
+        });
+
+        // Release Connection
+        /*
+        connection.release (function (err) {
+            if (err) {
+                console.log ("Error #06: " + err.message);
+                return;
+            }
+
+            console.log ("Connection released!");
+        });
+        */
+    });
+});
+
+/**
+ * Get Table Names and Columns
+ */
+app.get ('/database', function (req, res) {
+    "use strict";
+
+    
+    if (req.param ("TABLE_NAME")) {
+        console.log ("[GET] column_name FROM /database");
+        console.log ("PREV_TABLE_NAME: " + TABLE_NAME);
+        console.log ("TABLE_NAME: " + req.param ("TABLE_NAME"));
+        TABLE_NAME = req.param ("TABLE_NAME");
+
+        var result = {
+            rows: [],
+        }
+        
+        result.rows = [];
+
+        result.rows [0] = "USER_ID";
+        result.rows [1] = "USER_NAME";
+        result.rows [2] = "USER_SURNAME";
+        result.rows [3] = "USER_ADDRESS";
+
+        if (TABLE_NAME === "GNL_USER") {
+            result.rows [0] = "USER_ID";
+            result.rows [1] = "USER_NAME";
+            result.rows [2] = "USER_MAIL";
+            result.rows [3] = "USER_TITLE";
+            result.rows [4] = "USER_PHONE";
+            result.rows [5] = "USER_GENDER";
+            result.rows [6] = "USER_RANK";
+        }
+        
+        res.setHeader ('Access-Control-Allow-Origin', '*');
+        res.write (JSON.stringify (result));
+        res.end ();
+        return;
+    }
+
+    console.log ("[GET] table_name FROM /database")
+    
+    var result = {
+        rows: [],
+    }
+    
+    result.rows = [];
+
+    result.rows [0] = "GNL_USER";
+    for (var i = 1; i < 6; i++) {
+        result.rows [i] = "table_" + i;
+    }
+    
+    res.setHeader ('Access-Control-Allow-Origin', '*');
+    res.write (JSON.stringify (result));
+    res.end ();
+});
+
+app.get ('/data', function (req, res) {
+    "use strict";
+
+    console.log ("KEYWORD: " + req.param ("KEYWORD"));
+
+    var result = {
+        rows: [],
+    }
+    
+    result.rows = [];
+
+    if (req.param ("KEYWORD")) {
+        result.rows [0] = "2";
+        result.rows [1] = "user";
+        result.rows [2] = "mail";
+        result.rows [3] = "title";
+        result.rows [4] = "phone";
+        result.rows [5] = "gender";
+        result.rows [6] = "4";
+    }
+    
+    res.setHeader ('Access-Control-Allow-Origin', '*');
+    res.write (JSON.stringify (result));
+    res.end ();
+});
+
+app.post ('/data', function (req, res) {
+    "use strict";
+
+    console.log ("[POST] update TO /data");
+
+    console.log ("ID: " + req.param ("ID"));
+    console.log ("CLMN: " + req.param ("CLMN"));
+    console.log ("DATA: " + req.param ("DATA"));
+
+    var clmn = JSON.parse(req.param ("CLMN"));
+    var data = JSON.parse(req.param ("DATA"));
+
+    var sqlConn = "UPDATE " + TABLE_NAME + " SET ";
+    for (var i = 0; i < clmn.length; i++) {
+        sqlConn += clmn [i] + " = '" + data [i] + "'";
+
+        if (i < clmn.length - 1) {
+            sqlConn += ", "
+        }
+    }
+    sqlConn += " WHERE " + clmn [0] + " = " + data [0];
+
+    console.log ("sqlConn: " + sqlConn);
+    res.setHeader ('Access-Control-Allow-Origin', '*');
+    res.write (JSON.stringify ({rows: ""}));
+    res.end ();
+});
+
+/**
+ * Listen PORT
+ */
 var server = app.listen (3000, function () {
     "use strict";
 

@@ -1,26 +1,32 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { AuthService } from './../auth/auth.service';
+import { AuthService } from './../user/auth/auth.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { FormControl, NgForm } from '../../../../node_modules/@angular/forms';
+import { FormControl, NgForm } from './../../../node_modules/@angular/forms';
 import { MatPaginator, MatTableDataSource } from '@angular/material';
 
 @Component({
-  selector: 'app-user-panel',
-  templateUrl: './user-panel.component.html',
-  styleUrls: ['./user-panel.component.css']
+  selector: 'app-user',
+  templateUrl: './user.component.html',
+  styleUrls: ['./user.component.css']
 })
-export class UserPanelComponent implements OnInit {
+
+export class UserComponent implements OnInit {
   data: [any];
   tables: [any];
   columns: [any];
   finded: [any];
   newColumns: [any];
+  findedFeatures: [any];
+  isLocked: [number];
   empty: string;
+  user_name: string;
+  tableNameFeatures: string;
   user_rank: number;
   menuSelect: number;
   dataFormControl: FormControl;
   
   private types = ["NUMBER", "VARCHAR2", "DATE"];
+  private features = ["NAME", "TYPE", "SIZE (byte)", "NOT NULL", "Primary Key"];
 
   dataSource = new MatTableDataSource<Array<any>> (this.data);
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -39,9 +45,12 @@ export class UserPanelComponent implements OnInit {
     this.dataSource.paginator = this.paginator;
     this.finded = [[]];
     this.newColumns = [""];
+    this.findedFeatures = [[]];
+    this.isLocked = [0];
     this.empty = "";
+    this.user_name = "";
     this.user_rank = 0;
-    this.menuSelect = 3;
+    this.menuSelect = 0;
   }
 
   test () {
@@ -55,6 +64,7 @@ export class UserPanelComponent implements OnInit {
       this.data = res.rows;
       this.dataSource = new MatTableDataSource<Array<string>> (this.data);
       this.dataSource.paginator = this.paginator;
+      this.user_name = res.rows [0][1];
       this.user_rank = res.rows [0][6];
     });
   }
@@ -63,16 +73,16 @@ export class UserPanelComponent implements OnInit {
     this.dataSource.filter = value.trim ().toLowerCase ();
   }
 
-  getData (count:number | null) {
+  getData () {
+    console.log ("UserPanel getData() method");
+
     console.log ("Selected table is " + this.dataFormControl.value);
     localStorage.setItem ("TABLE_NAME", this.dataFormControl.value);
     this.getColumns ();
 
-    console.log ("UserPanel getData() method");
-
     // Set Parameters
     var params = new HttpParams ()
-      .set ("COUNT", count + "");
+      .set ("COUNT", "");
     
     // Send Method
     this.http.get <Response> ("http://localhost:3000/user", {params}).subscribe (res => {
@@ -173,7 +183,65 @@ export class UserPanelComponent implements OnInit {
       this.newColumns [this.newColumns.length] = value;
     }
 
+    this.findedFeatures [this.newColumns.length - 1] = [];
     //this.newColumns [this.newColumns.length||0] = value;
+  }
+
+  getTableFeatures (form:NgForm, TABLE_NAME:string) {
+    console.log ("UserPanel getTableFeatures() method");
+
+    this.tableNameFeatures = TABLE_NAME;
+
+    for (var i = 0; i < 5; i++) {
+      this.newColumns [i] = "column #" + i;
+    }
+  
+    for (var i = 0; i < 5; i++) {
+      this.findedFeatures [i] = [this.types[i%3], (i + 1), (i%2 == 0)?true:false, (i%2 != 0)?true:false];
+    }
+  }
+
+  saveTable (form:NgForm) {
+    console.log ("UserPanel saveTable() method");
+
+    for (var i in form.value) {
+      console.log (" :" + i + " = " + form.value [i]);
+    }
+
+    var sqlCommand = "ALTER TABLE " + this.tableNameFeatures + " (";
+
+    for (var k = 0; k < this.newColumns.length; k++) {
+      sqlCommand += "MODIFY " + this.newColumns [k] + " ";
+
+      //
+      sqlCommand += form.value ["type" + k] + "(" + form.value ["size" + k] + ")";
+      sqlCommand += (form.value ["notNull" + k])?" NOT NULL":"";
+      //
+      
+      if (k < this.newColumns.length - 1) {
+        sqlCommand += ", ";
+      }
+    }
+
+    sqlCommand += ");";
+
+    console.log ("SQL: " + sqlCommand);
+  }
+
+  deleteColumn (index:number) {
+    console.log ("UserPanel deleteColumn() method");
+
+    for (var i = 0; i < this.newColumns.length; i++) {
+      if (i >= index) {
+        this.newColumns [i] = this.newColumns [i + 1];
+        this.findedFeatures [i] = this.findedFeatures [i + 1];
+      }
+    }
+
+    this.findedFeatures.pop ();
+    this.newColumns.pop ();
+
+    console.log (this.findedFeatures);
   }
 
   changeMenu (select:number) {

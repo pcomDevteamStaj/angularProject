@@ -53,6 +53,9 @@ import { AuthService } from './user/auth/auth.service';
 import { AuthComponent } from './user/auth/auth.component';
 import { DbSettingsComponent } from './dbsettings/dbsettings.component';
 
+//TestUI
+import { UserComponent } from './testUI/user.component';
+
 const appRoutes: Routes = [
   { path: 'login', component: SigninComponent },
   { path: 'sign-up', component: SignupComponent },
@@ -60,6 +63,7 @@ const appRoutes: Routes = [
   { path: 'user-panel', component: UserPanelComponent, canActivate: [AuthService]},
   { path: 'auth', component: AuthComponent },
   { path: 'dbsettings', component: DbSettingsComponent },
+  { path: 'user', component: UserComponent, canActivate: [AuthService]},
   { path: '', pathMatch: 'full', component: SigninComponent},
   { path: '**', component: SigninComponent}
 ];
@@ -74,7 +78,8 @@ const appRoutes: Routes = [
     UserPanelComponent,
     HeaderComponent,
     AuthComponent,
-    DbSettingsComponent
+    DbSettingsComponent,
+    UserComponent
   ],
   imports: [
     RouterModule.forRoot (appRoutes),

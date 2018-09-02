@@ -14,3 +14,7 @@ div {
   display: flex;
   justify-content: space-between;
 }
+
+mat-toolbar {
+  height: 50px;
+}
